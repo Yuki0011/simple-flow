@@ -1,0 +1,114 @@
+# Tomcat
+server:
+  port: 9211
+
+# Spring
+spring:
+  application:
+    # 应用名称
+    name: sentury-approvalflow
+  profiles:
+    # 环境配置
+    active: @profiles.active@
+
+--- # nacos 配置
+spring:
+  cloud:
+    nacos:
+      # nacos 服务地址
+      server-addr: @nacos.server@
+      username: @nacos.username@
+      password: @nacos.password@
+      discovery:
+        # 注册组
+        group: @nacos.discovery.group@
+        namespace: ${spring.profiles.active}
+      config:
+        # 配置组
+        group: @nacos.config.group@
+        namespace: ${spring.profiles.active}
+  config:
+    import:
+      - optional:nacos:application-common.yml
+      - optional:nacos:datasource.yml
+      - optional:nacos:${spring.application.name}.yml
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  application:
+    name: sentury-approvalflow
+
+  jackson:
+    #字段为null时不返回该字段
+    default-property-inclusion: non_null
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+    deserialization:
+      fail-on-unknown-properties: false
+
+
+file:
+  ##静态文件在磁盘位置，此处与nginx配置要一直
+  dir: /tmp/flyflow
+  ##静态文件访问路径
+  showUrl: http://172.16.50.8:8080/sentury-approvalflow/file/show?key=
+
+
+##钉钉模块访问路径
+dingtalk:
+  url: http://127.0.0.1:26860
+##企微模块访问路径
+wxcp:
+  url: http://127.0.0.1:26861
+##飞书模块访问路径
+fs:
+  url: http://127.0.0.1:26862
+
+login:
+  captcha: true
+
+## 是否每个用户都是所有的权限
+role:
+  allPermission: false
+
+
+ko-time:
+  pointcut: execution(public * com.sentury.approvalflow.web.controller.*.*(..))
+  log-enable: false
+  saver: redis
+  data-prefix: kotime
+
+api:
+  ori: sentury
+
+# knife4j的增强配置，不需要增强可以不配
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+#  不需要表单引擎 idm引擎
+flowable:
+  common:
+    app:
+      idm-url: /a.html
+      idm-admin:
+        user: a
+        password: a
+  form:
+    enabled: false
+  idm:
+    enabled: false
+  async-executor-activate: true
+
+
+node:
+  data:
+    store: remoteDateStore
+
+
